@@ -1,0 +1,6 @@
+@TodoList.API_HostAddress = http://localhost:5288
+
+GET {{TodoList.API_HostAddress}}/
+Accept: application/json
+
+###
