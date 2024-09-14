@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using TodoList.API.Entites;
 using Task = TodoList.API.Entites.Task;
 
-namespace TodoList.API.Date
+namespace TodoList.API.Data
 {
     public class TodoListDbContext : IdentityDbContext<User,Role,Guid>
     {

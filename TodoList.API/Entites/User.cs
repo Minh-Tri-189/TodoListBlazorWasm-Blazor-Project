@@ -10,6 +10,7 @@ namespace TodoList.API.Entites
         [Required]
 
         public String FirstName{ get; set; }
+        [MaxLength(250)]
         [Required]
         public string LastName{ get; set; }
     }

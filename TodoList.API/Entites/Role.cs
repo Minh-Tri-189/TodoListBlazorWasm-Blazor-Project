@@ -8,6 +8,6 @@ namespace TodoList.API.Entites
         [MaxLength(250)]
         [Required]
 
-        public string Desciption { get; set; }
+        public string Description { get; set; }
     }
 }
