@@ -20,6 +20,8 @@ namespace TodoList.API
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+
             builder.Services.AddDbContext<TodoListDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -33,8 +35,9 @@ namespace TodoList.API
                         .AllowAnyHeader()
                         .AllowCredentials());
             });
-            
+
             builder.Services.AddIdentity<User, Role>()
+                
                 .AddEntityFrameworkStores<TodoListDbContext>()
                 .AddDefaultTokenProviders();
 

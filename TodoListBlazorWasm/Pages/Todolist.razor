@@ -1,53 +1,69 @@
 ﻿@page "/todoList"
+@using System.Globalization
+@using TodoListBlazorWasm.Component
 @using global::TodoList.API.Enums
+@inject IConfiguration Configuration
 <h3>TodoList</h3>
 
-@if (Tasks == null)
+@if (Tasks == null || Assignee == null)
 {
     <LoadingIndicator></LoadingIndicator>
 }
 else
 {
     <div class="row">
-	    <EditForm Model="@ListSearch">
-		    <div class="col">
-			    <label>Name</label>
-			    <InputText class="form-contol" @bind-Value="ListSearch.Name" ></InputText>
-		    </div>
-		    <div class="col">
-			    <label>Assignee</label>
-			    <InputSelect class="form-contol" @bind-Value="ListSearch.AssigneeId">
-                    @foreach (var assignee in assignee)
-                    {
-	                    <option value="@assignee.Id" >@assignee.FullName</option>
-                    }
-			    </InputSelect>
-		    </div>
-		    <div class="col">
-			    <label>Priority</label>
-			    <InputSelect class="form-contol" @bind-Value="ListSearch.Priority" ></InputSelect>
-                @foreach (string item in Enum.GetNames((typeof(Priority))))
-			    {
-				    <option value="@item" >@item</option>
-			    }
-		    </div>
-		    <div class="col">
-			    <label>Name</label>
-			    <InputText type="submit" class="btn btn-success">Search</InputText>
-		    </div>
-	    </EditForm>
+        <!-- Form tìm kiếm -->
+        <EditForm Model="@TaskListSearch" OnSubmit=@SearchForm>
+            <div class="row">
+                <!-- Trường nhập tên công việc -->
+                <div class="col">
+                    <label for="name">Name</label>
+                    <InputText class="form-control" id="name" @bind-Value="TaskListSearch.NameType"></InputText>
+                </div>
+
+                <!-- Lựa chọn người được giao việc -->
+                <div class="col">
+                    <label for="assignee">Assignee</label>
+                    <InputSelect class="form-control" id="assignee" @bind-Value="TaskListSearch.AssigneeId">
+                        <option>Select Assignee</option>
+                        @foreach (var assignee in Assignee)
+                        {
+                            <option value="@assignee.Id">@assignee.FullName</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <!-- Lựa chọn mức độ ưu tiên -->
+                <div class="col">
+                    <label for="priority">Priority</label>
+                    
+                    <InputSelect class="form-control" id="priority" @bind-Value="TaskListSearch.Priority">
+                        <option>Select Priority</option>
+                        @foreach (string item in Enum.GetNames(typeof(Priority)))
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <!-- Nút tìm kiếm -->
+                <div class="col pt-4">
+                    <button type="submit" class="btn btn-success">Search</button>
+                </div>
+                <div class="col pt-4">
+                    <a href="/taskCreate" class="btn btn-success">Create</a>
+                </div>
+            </div>
+        </EditForm>
     </div>
 
+    <!-- Bảng hiển thị danh sách công việc -->
     <div class="row mt-4">
         <table class="table">
             <thead>
                 <tr>
-                    <th>
-                        Name
-                    </th>
-                    <th>
-                        Priority
-                    </th>
+                    <th>Name</th>
+                    <th>Priority</th>
                     <th>Assignee</th>
                     <th>Date</th>
                     <th>Status</th>
@@ -59,26 +75,19 @@ else
                 {
                     <tr>
                         <td>@item.NameType</td>
-                        <td><PriorityLabel Priority="item.Priority"></PriorityLabel></td>
-                        <td><a style="cursor:pointer;" @onclick="()=>OpenAssignPopup(item.Id)">@item.AssigneeName</a></td>
+                        <td><PriorityLable Priority="@item.Priority"></PriorityLable></td>
+                        <td>@item.AssigneeName</td>
                         <td>@item.CreatedDate.ToString(Configuration["DateTimeFormat"])</td>
-                        <td><StatusLabel Status="item.Status"></StatusLabel></td>
+                        <td><StatusLable Status="item.Status" ></StatusLable></td>
                         <td>
-                            <a href="/taskDetails/@item.Id" class="btn btn-primary">Detail</a>
-                            <a href="/taskEdit/@item.Id" class="btn btn-warning">Edit</a>
-                            <button class="btn btn-danger" @onclick="()=> OnDeleteTask(item.Id)">Delete</button>
-
+                            <a href="/taskDetails/@item.Id">Detail</a>
+                        </td>
+                        <td>
+                            <a href="/taskEdit/@item.Id">Detail</a>
                         </td>
                     </tr>
                 }
-
             </tbody>
-            <tfoot>
-                <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
-            </tfoot>
         </table>
     </div>
-
 }
-
-

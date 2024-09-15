@@ -1,0 +1,48 @@
+﻿@page "/taskCreate"
+@using global::TodoList.Model
+@using global::TodoList.API.Enums
+@using global::TodoListBlazorWasm.Services
+
+@inject ITaskApiClient TaskApiClient;
+@inject NavigationManager NavigationManager;
+@inject IToastService ToastService
+
+<h3>TaskCreate</h3>
+<EditForm Model="Task" OnValidSubmit="SubmitTask">
+    <!-- Sử dụng OnValidSubmit -->
+    <div class="form-group">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <label for="Name">Name</label>
+        <InputText class="form-control" @bind-Value="Task.Name"></InputText>
+        <ValidationMessage For="()=>Task.Name"></ValidationMessage>
+        <small id="nameHelp" class="form-text text-muted">Please enter task title here</small>
+    </div>
+
+    <div class="form-group">
+        <label for="Priority">Priority</label>
+        <InputSelect class="form-control" @bind-Value="Task.Priority">
+            @foreach (var item in Enum.GetValues(typeof(Priority)))
+            {
+                <option value="@item">@item.ToString()</option>
+            }
+        </InputSelect>
+        <small id="priorityHelp" class="form-text text-muted">Choose a priority level</small>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</EditForm>
+
+@code {
+    private TaskCreateRequest Task = new TaskCreateRequest(); 
+
+    private async Task SubmitTask()
+    {
+        var result = await TaskApiClient.CreateTask(Task);
+        if (result)
+        {
+            ToastService.ShowSuccess($"{Task.Name} has been created successfully");
+            NavigationManager.NavigateTo("/todoList");
+        }
+    }
+}

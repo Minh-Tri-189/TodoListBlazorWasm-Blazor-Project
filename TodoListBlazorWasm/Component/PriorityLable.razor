@@ -1,0 +1,23 @@
+﻿@using TodoList.API.Enums
+﻿@using TodoList.Model;
+@switch (Priority)
+{
+    case Priority.Low:
+        <span class="badge rounded-pill text-bg-warning">Low</span>
+        break;
+    case Priority.High:
+        <span class="badge rounded-pill text-bg-success">High</span>
+        break;
+    case Priority.Medium:
+        <span class="badge rounded-pill text-bg-primary">Medium</span>
+        break;
+    default:
+        <span class="badge rounded-pill text-bg-secondary">Unknown</span>
+        break;
+}
+
+
+@code {
+    [Parameter]
+    public Priority Priority { set; get; }
+}

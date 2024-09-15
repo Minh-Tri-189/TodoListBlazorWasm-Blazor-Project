@@ -18,36 +18,23 @@ namespace TodoList.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] TaskListSearch taskListSearch)
         {
-            var task = await _taskRepository.GetTaskList();
-            return Ok(task);
+            var task = await _taskRepository.GetTaskList(taskListSearch);
+            var taskDtos = task.Select(x => new TaskDto()
+            {
+                Status = x.Status,
+                NameType = x.NameType,
+                AssigneeId = x.AssigneeId,
+                CreatedDate = x.CreateDate,
+                Priority = x.Priority,
+                Id = x.Id,
+                AssigneeName = x.Assignee != null ? x.Assignee.FirstName + ' ' + x.Assignee.LastName : "N/A"
+
+            });
+            return Ok(taskDtos);
         }
-
-
-        //api/tasks?name=
-        //  [HttpGet]
-        //public async Task<IActionResult> GetAll([FromQuery] TaskListSearch taskListSearch)
-        //{
-        //    var pagedList = await _taskRepository.GetTaskList(taskListSearch);
-        //    var taskDtos = pagedList.Items.Select(x => new TaskDto()
-        //    {
-        //        Status = x.Status,
-        //        Name = x.Name,
-        //        AssigneeId = x.AssigneeId,
-        //        CreatedDate = x.CreatedDate,
-        //        Priority = x.Priority,
-        //        Id = x.Id,
-        //        AssigneeName = x.Assignee != null ? x.Assignee.FirstName + ' ' + x.Assignee.LastName : "N/A"
-        //    });
-
-        //    return Ok(
-        //            new PagedList<TaskDto>(taskDtos.ToList(),
-        //                pagedList.MetaData.TotalCount,
-        //                pagedList.MetaData.CurrentPage,
-        //                pagedList.MetaData.PageSize)
-        //        );
-        //}
+              
 
         //[HttpGet("me")]
         //public async Task<IActionResult> GetByAssigneeId([FromQuery] TaskListSearch taskListSearch)

@@ -18,18 +18,18 @@ namespace TodoListBlazorWasm.Services
             _httpClient = httpClient;
         }
 
-        //public async Task<bool> AssignTask(Guid id, AssignTaskRequest request)
-        //{
-        //    var result = await _httpClient.PutAsJsonAsync($"/api/tasks/{id}/assign", request);
-        //    return result.IsSuccessStatusCode;
-        //}
+		//public async Task<bool> AssignTask(Guid id, AssignTaskRequest request)
+		//{
+		//    var result = await _httpClient.PutAsJsonAsync($"/api/tasks/{id}/assign", request);
+		//    return result.IsSuccessStatusCode;
+		//}
 
-        //public async Task<bool> CreateTask(TaskCreateRequest request)
-        //{
-        //    var result = await _httpClient.PostAsJsonAsync("/api/tasks", request);
-        //    return result.IsSuccessStatusCode;
-
-        //}
+		
+		public async Task<bool> CreateTask(TaskCreateRequest request)
+        {
+            var result = await _httpClient.PostAsJsonAsync("/api/Task", request);
+            return result.IsSuccessStatusCode;
+        }
 
         //public async Task<bool> DeleteTask(Guid id)
         //{
@@ -63,17 +63,18 @@ namespace TodoListBlazorWasm.Services
             return result;
         }
 
-        public async Task<List<TaskDto>> GetTaskList()
+        public async Task<List<TaskDto>> GetTaskList(TaskListSearch taskListSearch)
         {
-            var result = await _httpClient.GetFromJsonAsync<List<TaskDto>>("/api/Task");
+            var url= $"/api/Task?NameType={taskListSearch.NameType}&AssigneeId={taskListSearch.AssigneeId}&Priority={taskListSearch.Priority}";
+            var result = await _httpClient.GetFromJsonAsync<List<TaskDto>>(url);
             return result;
         }
 
-        //public async Task<bool> UpdateTask(Guid id, TaskUpdateRequest request)
-        //{
-        //    var result = await _httpClient.PutAsJsonAsync($"/api/tasks/{id}", request);
-        //    return result.IsSuccessStatusCode;
+        public async Task<bool> UpdateTask(Guid id, TaskUpdateRequest request)
+        {
+            var result = await _httpClient.PutAsJsonAsync($"/api/Task/{id}", request);
+            return result.IsSuccessStatusCode;
 
-        //}
+        }
     }
 }

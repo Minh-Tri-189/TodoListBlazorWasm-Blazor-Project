@@ -4,7 +4,7 @@
     {
         Open,
         Inprogress,
-        Resolve,
+        Resolved,
         Done,
         Canceled,
         CLosed
