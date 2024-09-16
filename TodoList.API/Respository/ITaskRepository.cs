@@ -2,13 +2,15 @@
 using System.Linq;
 using System.Threading.Tasks;
 using TodoList.Model;
+using TodoList.Model.SeedWork;
 using Task = TodoList.API.Entites.Task;
 
 namespace TodoList.Api.Repositories
 {
     public interface ITaskRepository
     {
-        Task<IEnumerable<Task>> GetTaskList(TaskListSearch taskListSearch);
+        Task<PagedList<Task>> GetTaskList(TaskListSearch taskListSearch);
+        Task<PagedList<Task>> GetTaskListByUserId(Guid userId, TaskListSearch taskListSearch);
         Task<Task> Create(Task task);
 
         Task<Task> Update(Task task);

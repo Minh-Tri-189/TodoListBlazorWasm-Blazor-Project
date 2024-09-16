@@ -1,6 +1,6 @@
 ﻿@page "/taskEdit/{TaskId}"
 @using global::TodoList.Model
-@using global::TodoList.API.Enums
+@using global::TodoList.Model.Enums
 @using global::TodoListBlazorWasm.Services
 @using global::TodoListBlazorWasm.Component
 @inject ITaskApiClient TaskApiClient;
@@ -60,7 +60,7 @@ else
         if (result)
         {
             ToastService.ShowSuccess($"{Task.Name} has been updated successfully.");
-            NavigationManager.NavigateTo("/taskList");
+            NavigationManager.NavigateTo("/todoList");
         }
         else
         {

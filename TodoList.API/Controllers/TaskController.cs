@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TodoList.Api.Repositories;
-using TodoList.API.Enums;
+using TodoList.Model.Enums;
 using TodoList.Model;
+using TodoList.Model.SeedWork;
+using TodoList.Api.Extensions;
 
 namespace TodoList.API.Controllers
 {
@@ -20,8 +22,8 @@ namespace TodoList.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] TaskListSearch taskListSearch)
         {
-            var task = await _taskRepository.GetTaskList(taskListSearch);
-            var taskDtos = task.Select(x => new TaskDto()
+            var pagedList = await _taskRepository.GetTaskList(taskListSearch);
+            var taskDtos = pagedList.Items.Select(x => new TaskDto()
             {
                 Status = x.Status,
                 NameType = x.NameType,
@@ -32,33 +34,38 @@ namespace TodoList.API.Controllers
                 AssigneeName = x.Assignee != null ? x.Assignee.FirstName + ' ' + x.Assignee.LastName : "N/A"
 
             });
-            return Ok(taskDtos);
+            return Ok(
+                               new PagedList<TaskDto>(taskDtos.ToList(),
+                                   pagedList.MetaData.TotalCount,
+                                   pagedList.MetaData.CurrentPage,
+                                   pagedList.MetaData.PageSize)
+                           );
         }
-              
 
-        //[HttpGet("me")]
-        //public async Task<IActionResult> GetByAssigneeId([FromQuery] TaskListSearch taskListSearch)
-        //{
-        //    var userId = User.GetUserId();
-        //    var pagedList = await _taskRepository.GetTaskListByUserId(Guid.Parse(userId), taskListSearch);
-        //    var taskDtos = pagedList.Items.Select(x => new TaskDto()
-        //    {
-        //        Status = x.Status,
-        //        Name = x.Name,
-        //        AssigneeId = x.AssigneeId,
-        //        CreatedDate = x.CreatedDate,
-        //        Priority = x.Priority,
-        //        Id = x.Id,
-        //        AssigneeName = x.Assignee != null ? x.Assignee.FirstName + ' ' + x.Assignee.LastName : "N/A"
-        //    });
 
-        //    return Ok(
-        //            new PagedList<TaskDto>(taskDtos.ToList(),
-        //                pagedList.MetaData.TotalCount,
-        //                pagedList.MetaData.CurrentPage,
-        //                pagedList.MetaData.PageSize)
-        //        );
-        //}
+        [HttpGet("me")]
+        public async Task<IActionResult> GetByAssigneeId([FromQuery] TaskListSearch taskListSearch)
+        {
+            var userId = User.GetUserId();
+            var pagedList = await _taskRepository.GetTaskListByUserId(Guid.Parse(userId), taskListSearch);
+            var taskDtos = pagedList.Items.Select(x => new TaskDto()
+            {
+                Status = x.Status,
+                NameType = x.NameType,
+                AssigneeId = x.AssigneeId,
+                CreatedDate = x.CreateDate,
+                Priority = x.Priority,
+                Id = x.Id,
+                AssigneeName = x.Assignee != null ? x.Assignee.FirstName + ' ' + x.Assignee.LastName : "N/A"
+            });
+
+            return Ok(
+                    new PagedList<TaskDto>(taskDtos.ToList(),
+                        pagedList.MetaData.TotalCount,
+                        pagedList.MetaData.CurrentPage,
+                        pagedList.MetaData.PageSize)
+                );
+        }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] TaskCreateRequest request)
@@ -108,34 +115,34 @@ namespace TodoList.API.Controllers
             });
         }
 
-        //[HttpPut]
-        //[Route("{id}/assign")]
-        //public async Task<IActionResult> AssignTask(Guid id, [FromBody] AssignTaskRequest request)
-        //{
-        //    if (!ModelState.IsValid)
-        //        return BadRequest(ModelState);
+        [HttpPut]
+        [Route("{id}/assign")]
+        public async Task<IActionResult> AssignTask(Guid id, [FromBody] AssignTaskRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        //    var taskFromDb = await _taskRepository.GetById(id);
+            var taskFromDb = await _taskRepository.GetById(id);
 
-        //    if (taskFromDb == null)
-        //    {
-        //        return NotFound($"{id} is not found");
-        //    }
+            if (taskFromDb == null)
+            {
+                return NotFound($"{id} is not found");
+            }
 
-        //    taskFromDb.AssigneeId = request.UserId.Value == Guid.Empty ? null : request.UserId.Value;
+            taskFromDb.AssigneeId = request.UserId.Value == Guid.Empty ? null : request.UserId.Value;
 
-        //    var taskResult = await _taskRepository.Update(taskFromDb);
+            var taskResult = await _taskRepository.Update(taskFromDb);
 
-        //    return Ok(new TaskDto()
-        //    {
-        //        Name = taskResult.NameType,
-        //        Status = taskResult.Status,
-        //        Id = taskResult.Id,
-        //        AssigneeId = taskResult.AssigneeId,
-        //        Priority = taskResult.Priority,
-        //        CreatedDate = taskResult.CreatedDate
-        //    });
-        //}
+            return Ok(new TaskDto()
+            {
+                NameType = taskResult.NameType,
+                Status = taskResult.Status,
+                Id = taskResult.Id,
+                AssigneeId = taskResult.AssigneeId,
+                Priority = taskResult.Priority,
+                CreatedDate = taskResult.CreateDate
+            });
+        }
 
 
         //api/tasks/xxxx
@@ -158,7 +165,7 @@ namespace TodoList.API.Controllers
 
         [HttpDelete]
         [Route("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] Guid id) 
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var task = await _taskRepository.GetById(id);
             if (task == null) return NotFound($"{id} is not found");
@@ -177,5 +184,5 @@ namespace TodoList.API.Controllers
     }
 }
 
-    
+
 

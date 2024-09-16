@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TodoList.API.Enums;
+using TodoList.Model.Enums;
 
 namespace TodoList.Model
 {

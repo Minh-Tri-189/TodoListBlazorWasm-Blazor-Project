@@ -1,58 +1,70 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
-using TodoList.Model;
-using TodoList.Model.Enums;
-using TodoListBlazorWasm.Services;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Blazored.Toast.Services;
-using TodoListBlazorWasm.Component;
-using TodoListBlazorWasm.Pages.Component;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using TodoList.Model.SeedWork;
+using TodoList.Model;
+
+using TodoListBlazorWasm.Component;
+
+using TodoListBlazorWasm.Pages.Component;
+
+using TodoListBlazorWasm.Services;
 using TodoListBlazorWasm.Shared;
 
 namespace TodoListBlazorWasm.Pages
 {
-    public partial class TodoList
+    public partial class MyTasks
     {
-        [Inject] private ITaskApiClient TaskApiClient { get; set; }
+        [Inject] private ITaskApiClient TaskApiClient { set; get; }
 
+        protected Confirmation DeleteConfirmation { set; get; }
+        protected AssignTask AssignTaskDialog { set; get; }
 
+        private Guid DeleteId { set; get; }
         private List<TaskDto> Tasks;
+        public MetaData MetaData { get; set; } = new MetaData();
 
         private TaskListSearch TaskListSearch = new TaskListSearch();
-        protected Confirmation DeleteConfirmation { set; get; }
-        public MetaData MetaData { get; set; } = new MetaData();
-        protected AssignTask AssignTaskDialog{ set; get; }
+
         [CascadingParameter]
-        private Error error { set; get; }
-        private Guid DeleteId { set; get; }
+        private Error Error { set; get; }
+
         protected override async Task OnInitializedAsync()
         {
-           
             await GetTasks();
         }
+
         public async Task SearchTask(TaskListSearch taskListSearch)
         {
             TaskListSearch = taskListSearch;
             await GetTasks();
         }
-        public async Task OndeleteTask(Guid deleteId)
+
+        public void OnDeleteTask(Guid deleteId)
         {
             DeleteId = deleteId;
             DeleteConfirmation.Show();
         }
+
         public async Task OnConfirmDeleteTask(bool deleteConfirmed)
         {
             if (deleteConfirmed)
             {
                 await TaskApiClient.DeleteTask(DeleteId);
                 await GetTasks();
-
             }
         }
-        public void OpenAssignPopup(Guid Id)
+
+        public void OpenAssignPopup(Guid id)
         {
-            AssignTaskDialog.Show(Id);
+            AssignTaskDialog.Show(id);
         }
+
         public async Task AssignTaskSuccess(bool result)
         {
             if (result)
@@ -60,23 +72,28 @@ namespace TodoListBlazorWasm.Pages
                 await GetTasks();
             }
         }
+
         private async Task GetTasks()
         {
-            try {
+            try
+            {
                 var pagingResponse = await TaskApiClient.GetMyTasks(TaskListSearch);
-
                 Tasks = pagingResponse.Items;
-
                 MetaData = pagingResponse.MetaData;
             }
-            catch (Exception ex) { 
-            error.ProcessError(ex);
+            catch (Exception ex)
+            {
+                Error.ProcessError(ex);
             }
+
         }
+
         private async Task SelectedPage(int page)
         {
             TaskListSearch.PageNumber = page;
             await GetTasks();
         }
     }
+
+
 }
