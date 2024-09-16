@@ -4,7 +4,7 @@
 This source code for Lê Minh Trí .I will make a Todo list project using Blazor WebAssembly connecto to Backend API via HttpClient. 
 
 ## Techstack
-- ASP.NET 8.p
+- ASP.NET 8.0
 - REST API
 - SQL Server
 - Entity Framework Core
